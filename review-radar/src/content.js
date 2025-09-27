@@ -342,13 +342,20 @@ class ReviewScraper {
         console.log('Positive Reviews:', this.reviews.positive_reviews);
         console.log('Negative Reviews:', this.reviews.negative_reviews);
 
-        // Store in session storage for popup access
-        sessionStorage.setItem('reviewRadarData', JSON.stringify({
-            ...this.reviews,
-            scrapedAt: new Date().toISOString(),
-            site: this.scrapeSite,
-            totalFound: totalReviews
-        }));
+        // Store in chrome.storage.local for popup access
+        chrome.storage.local.set({
+            reviewRadarData: {
+                ...this.reviews,
+                scrapedAt: new Date().toISOString(),
+                site: this.scrapeSite,
+                totalFound: totalReviews
+            }
+        }, () => {
+            console.log('Review Radar: Reviews successfully stored in chrome.storage.local');
+        });
+
+        // Send reviews to the backend
+        this.postReviewsToBackend();
 
         // Send message to popup if it's open
         if (chrome.runtime) {
@@ -358,10 +365,51 @@ class ReviewScraper {
                 totalFound: totalReviews,
                 site: this.scrapeSite
             }).catch(() => {
-                // Popup might not be open, that's okay
-                console.log('Review Radar: Reviews stored in session storage');
+                console.log('Review Radar: Reviews stored in chrome.storage.local');
             });
         }
+    }
+
+    postReviewsToBackend() {
+        const url = 'http://127.0.0.1:8000/predict_batch';
+        const cleanText = (text) => text.replace(/[^a-zA-Z0-9\s]/g, ''); // Remove special symbols
+
+        const payload = {
+            texts: [
+                ...this.reviews.positive_reviews.map(review => cleanText(review.text)),
+                ...this.reviews.negative_reviews.map(review => cleanText(review.text))
+            ]
+        };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Review Radar: Successfully posted reviews to backend:', data);
+
+                // Store backend response in chrome.storage.local
+                chrome.storage.local.set({ backendResponse: data }, () => {
+                    console.log('Review Radar: Backend response successfully stored in chrome.storage.local');
+                });
+            })
+            .catch(error => {
+                console.error('Review Radar: Failed to post reviews to backend:', error);
+
+                // Store error message in chrome.storage.local for debugging
+                chrome.storage.local.set({ backendResponseError: { error: error.message } }, () => {
+                    console.log('Review Radar: Error details stored in chrome.storage.local');
+                });
+            });
     }
 }
 
@@ -372,12 +420,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         new ReviewScraper();
         sendResponse({ status: 'started' });
     } else if (request.action === 'getStoredReviews') {
-        const storedData = sessionStorage.getItem('reviewRadarData');
-        if (storedData) {
-            sendResponse({ data: JSON.parse(storedData) });
-        } else {
-            sendResponse({ data: null });
-        }
+        chrome.storage.local.get('reviewRadarData', (result) => {
+            sendResponse({ data: result.reviewRadarData || null });
+        });
     }
     return true; // Keep message channel open for async responses
 });
