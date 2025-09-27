@@ -1,0 +1,41 @@
+/* This file contains the styles for the popup, utilizing Tailwind CSS classes for a modern look, including layout, padding, margins, and card-like sections. */
+
+body {
+    @apply bg-gray-100 flex items-center justify-center h-screen;
+}
+
+.popup-container {
+    @apply bg-white rounded-lg shadow-lg p-6 w-80;
+}
+
+.title {
+    @apply text-center text-xl font-bold mb-4;
+}
+
+.analyze-button {
+    @apply bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition duration-200;
+}
+
+.results-section {
+    @apply mt-4;
+}
+
+.sentiment-counts {
+    @apply flex justify-between mb-2;
+}
+
+.chart-container {
+    @apply mt-4;
+}
+
+.pros-cons {
+    @apply mt-4;
+}
+
+.pros-list, .cons-list {
+    @apply list-disc pl-5;
+}
+
+.trend-chart {
+    @apply mt-4;
+}
