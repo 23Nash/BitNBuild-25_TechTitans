@@ -12,7 +12,7 @@ app = FastAPI(title="Sentiment Analysis API")
 # Allow all origins for demo; in production restrict to your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://www.amazon.in", "https://www.flipkart.com", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

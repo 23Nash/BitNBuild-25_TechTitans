@@ -2,9 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const analyzeButton = document.getElementById('analyze-button');
-    const positiveCount = document.getElementById('positive-count');
-    const negativeCount = document.getElementById('negative-count');
-    const neutralCount = document.getElementById('neutral-count');
+    const positiveCount = document.getElementById('positive');
+    const negativeCount = document.getElementById('negative');
+    const neutralCount = document.getElementById('neutral');
     const prosList = document.getElementById('pros-list');
     const consList = document.getElementById('cons-list');
 
@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (typeof renderTrendChart === 'function') {
             renderTrendChart();
         }
+
+        // Update sentiment counts from backend response
+        updateSentimentCountsFromBackend();
     }
 
     function extractKeyThemes(reviews, isPositive) {
@@ -203,5 +206,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 statusDiv.remove();
             }
         }, 5000);
+    }
+
+    // Function to update sentiment counts from backend response
+    function updateSentimentCountsFromBackend() {
+        console.log('Updating sentiment counts from backend response...');
+
+        // Get the correct DOM elements
+        const positive = document.getElementById('positive');
+        const negative = document.getElementById('negative');
+        const neutral = document.getElementById('neutral');
+
+        // Retrieve backend response from chrome.storage.local
+        chrome.storage.local.get('backendResponse', (result) => {
+            const backendResponse = result.backendResponse;
+            if (backendResponse) {
+                console.log('Retrieved backend response from chrome.storage.local:', backendResponse);
+
+                // Debugging: Log the structure of backendResponse
+                if (!backendResponse.results || !Array.isArray(backendResponse.results)) {
+                    console.error('Invalid backendResponse structure:', backendResponse);
+                    return;
+                }
+
+                // Calculate counts from backend response
+                const results = backendResponse.results;
+                const positiveCount = results.filter(item => item.predicted_label === 'positive').length;
+                const negativeCount = results.filter(item => item.predicted_label === 'negative').length;
+                const neutralCount = results.filter(item => item.predicted_label === 'neutral').length;
+
+                console.log('Calculated sentiment counts:', { positive: positiveCount, negative: negativeCount, neutral: neutralCount });
+
+                // Update the counts in the popup
+                if (positive) positive.textContent = positiveCount;
+                if (negative) negative.textContent = negativeCount;
+                if (neutral) neutral.textContent = neutralCount;
+
+                // Debugging: Log after updating the DOM
+                console.log('Updated sentiment counts in the DOM.');
+            } else {
+                console.error('No backend response found in chrome.storage.local.');
+            }
+        });
     }
 });

@@ -4,7 +4,20 @@
   "version": "1.0",
   "description": "A Chrome extension to analyze and visualize review sentiments.",
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.amazon.com/*",
+        "*://*.amazon.in/*",
+        "*://*.amazon.co.uk/*",
+        "*://*.flipkart.com/*"
+      ],
+      "js": ["src/content.js"],
+      "run_at": "document_idle"
+    }
   ],
   "action": {
     "default_popup": "src/popup/popup.html",
