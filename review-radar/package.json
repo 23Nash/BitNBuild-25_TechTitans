@@ -1,0 +1,27 @@
+{
+  "name": "review-radar",
+  "version": "1.0.0",
+  "description": "A Chrome extension for analyzing reviews and visualizing sentiment data.",
+  "main": "src/popup/popup.js",
+  "scripts": {
+    "build": "tailwindcss build src/popup/popup.css -o src/popup/output.css",
+    "watch": "tailwindcss build src/popup/popup.css -o src/popup/output.css --watch"
+  },
+  "dependencies": {
+    "tailwindcss": "^2.2.19",
+    "chart.js": "^3.7.0"
+  },
+  "devDependencies": {
+    "postcss": "^8.4.5",
+    "autoprefixer": "^10.4.2"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "reviews",
+    "sentiment",
+    "visualization"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
