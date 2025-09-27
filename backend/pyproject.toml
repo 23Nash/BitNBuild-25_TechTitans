@@ -1,0 +1,44 @@
+[project]
+name = "BitNBuild-25_TechTitans"
+version = "0.1.0"
+description = "AI sentiment_analyzer"
+readme = "README.md"
+requires-python = ">=3.13"
+
+dependencies = [
+    "ipywidgets>=8.1.7",
+    "matplotlib>=3.10.6",
+    "numpy>=2.3.2",
+    "pandas>=2.3.2",
+    "scikit-learn>=1.7.1",
+    "transformers[torch]>=4.56.1",
+    "torch>=2.8.0",
+    "torchvision",
+    "ipykernel>=6.30.1",
+    "pip>=25.2",
+    "fastapi>=0.116.1",
+    "uvicorn>=0.35.0",
+    "datasets>=4.0.0",
+    "seaborn>=0.13.2",
+    "python-multipart>=0.0.6",
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
