@@ -21,7 +21,10 @@
         </div>
 
         <div class="bg-white rounded-lg shadow p-3">
-            <canvas id="sentiment-pie-chart" class="mx-auto"></canvas>
+            <h2 class="text-sm font-semibold text-gray-700 mb-2 text-center">Sentiment Distribution</h2>
+            <div class="h-48 flex items-center justify-center">
+                <canvas id="sentiment-pie-chart" width="180" height="180" class="max-w-full max-h-full" style="display: block;"></canvas>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -44,7 +47,7 @@
             <canvas id="trend-chart" class="mx-auto"></canvas>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="chart.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>
