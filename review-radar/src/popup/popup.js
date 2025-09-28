@@ -208,14 +208,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 5000);
     }
 
-    // Function to update sentiment counts from backend response
+    // Function to update sentiment counts and pros/cons from backend response
     function updateSentimentCountsFromBackend() {
-        console.log('Updating sentiment counts from backend response...');
+        console.log('Updating sentiment counts and pros/cons from backend response...');
 
         // Get the correct DOM elements
         const positive = document.getElementById('positive');
         const negative = document.getElementById('negative');
         const neutral = document.getElementById('neutral');
+        const prosList = document.getElementById('pros-list');
+        const consList = document.getElementById('cons-list');
 
         // Retrieve backend response from chrome.storage.local
         chrome.storage.local.get('backendResponse', (result) => {
@@ -223,27 +225,52 @@ document.addEventListener('DOMContentLoaded', function () {
             if (backendResponse) {
                 console.log('Retrieved backend response from chrome.storage.local:', backendResponse);
 
-                // Debugging: Log the structure of backendResponse
-                if (!backendResponse.results || !Array.isArray(backendResponse.results)) {
-                    console.error('Invalid backendResponse structure:', backendResponse);
-                    return;
+                // Use sentiment counts from backend if available
+                if (backendResponse.sentiment_counts) {
+                    const counts = backendResponse.sentiment_counts;
+                    console.log('Using sentiment counts from backend:', counts);
+
+                    // Update the counts in the popup
+                    if (positive) positive.textContent = counts.positive || 0;
+                    if (negative) negative.textContent = counts.negative || 0;
+                    if (neutral) neutral.textContent = counts.neutral || 0;
+                } else {
+                    // Fallback: Calculate counts from results array (old format)
+                    console.log('Fallback: Calculating counts from results array');
+                    if (backendResponse.results && Array.isArray(backendResponse.results)) {
+                        const results = backendResponse.results;
+                        const positiveCount = results.filter(item => item.predicted_label === 'positive').length;
+                        const negativeCount = results.filter(item => item.predicted_label === 'negative').length;
+                        const neutralCount = results.filter(item => item.predicted_label === 'neutral').length;
+
+                        if (positive) positive.textContent = positiveCount;
+                        if (negative) negative.textContent = negativeCount;
+                        if (neutral) neutral.textContent = neutralCount;
+                    }
                 }
 
-                // Calculate counts from backend response
-                const results = backendResponse.results;
-                const positiveCount = results.filter(item => item.predicted_label === 'positive').length;
-                const negativeCount = results.filter(item => item.predicted_label === 'negative').length;
-                const neutralCount = results.filter(item => item.predicted_label === 'neutral').length;
+                // Update pros and cons from backend RAKE keywords
+                if (backendResponse.pros_cons) {
+                    const { pros, cons } = backendResponse.pros_cons;
+                    console.log('Using RAKE keywords from backend:', { pros, cons });
 
-                console.log('Calculated sentiment counts:', { positive: positiveCount, negative: negativeCount, neutral: neutralCount });
+                    // Update pros list
+                    if (prosList && pros && pros.length > 0) {
+                        prosList.innerHTML = pros.map(pro => `<li>${pro}</li>`).join('');
+                    } else if (prosList) {
+                        prosList.innerHTML = '<li>No positive themes found</li>';
+                    }
 
-                // Update the counts in the popup
-                if (positive) positive.textContent = positiveCount;
-                if (negative) negative.textContent = negativeCount;
-                if (neutral) neutral.textContent = neutralCount;
+                    // Update cons list
+                    if (consList && cons && cons.length > 0) {
+                        consList.innerHTML = cons.map(con => `<li>${con}</li>`).join('');
+                    } else if (consList) {
+                        consList.innerHTML = '<li>No negative themes found</li>';
+                    }
+                }
 
                 // Debugging: Log after updating the DOM
-                console.log('Updated sentiment counts in the DOM.');
+                console.log('Updated sentiment counts and pros/cons in the DOM.');
             } else {
                 console.error('No backend response found in chrome.storage.local.');
             }
