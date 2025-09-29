@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Review Radar",
   "version": "1.0",
-  "description": "A Chrome extension to analyze and visualize review sentiments.",
+  "description": "A Chrome extension to analyze and visualize review sentiments. Bit and Build project",
   "permissions": [
     "activeTab",
     "storage"
